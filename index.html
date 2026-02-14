@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ramadan Sehri Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 500px; margin: auto; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 10px; }
+        button { background: green; color: white; border: none; }
+        button:disabled { background: grey; }
+        #message { margin-top: 15px; font-weight: bold; }
+        #map { height: 300px; margin-top: 10px; display: none; }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+<h2>🌙 Talha Masjid Ramadan Sehri Registration</h2>
+
+<form id="sehri-form" onsubmit="return submitToGoogleForm(event)">
+
+    <label>Name</label>
+    <input type="text" id="name" required />
+
+    <label>Phone Number</label>
+    <input type="tel" id="phone" required />
+
+    <label>Location Method</label>
+    <select id="locMethod" onchange="toggleMap()" required>
+        <option value="">Select</option>
+        <option value="current">Use Current Location (GPS)</option>
+        <option value="manual">Select Location on Map</option>
+    </select>
+
+    <label>Food Preference</label>
+    <select id="food" required>
+        <option value="">Select</option>
+        <option>Veg</option>
+        <option>Non-Veg</option>
+    </select>
+
+    <button type="button" onclick="verifyLocation()">Verify Location</button>
+    <button type="submit" id="submitBtn" disabled>Submit</button>
+
+</form>
+
+<p id="message"></p>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Your mosque location
+    const masjidLat = 12.9938519;
+    const masjidLon = 77.6988981;
+    const maxDistance = 5; // km
+    let map, marker, userLat, userLon;
+
+    function toggleMap() {
+        const method = document.getElementById("locMethod").value;
+        const mapDiv = document.getElementById("map");
+        document.getElementById("message").innerHTML = "";
+        document.getElementById("submitBtn").disabled = true;
+
+        if (method === "manual") {
+            mapDiv.style.display = "block";
+            if (!map) initMap();
+        } else {
+            mapDiv.style.display = "none";
+        }
+    }
+
+    function initMap() {
+        map = L.map('map').setView([masjidLat, masjidLon], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © OpenStreetMap contributors'
+        }).addTo(map);
+
+        marker = L.marker([masjidLat, masjidLon], {draggable:true}).addTo(map);
+
+        marker.on('dragend', function(e) {
+            const pos = marker.getLatLng();
+            userLat = pos.lat;
+            userLon = pos.lng;
+        });
+
+        map.on('click', function(e) {
+            const pos = e.latlng;
+            marker.setLatLng(pos);
+            userLat = pos.lat;
+            userLon = pos.lng;
+        });
+
+        userLat = masjidLat;
+        userLon = masjidLon;
+    }
+
+    function verifyLocation() {
+        const method = document.getElementById("locMethod").value;
+        if (!method) {
+            alert("Please select location method.");
+            return;
+        }
+
+        if (method === "current") {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(success, geoError);
+            } else {
+                alert("Geolocation not supported.");
+            }
+        } else if (method === "manual") {
+            userLat = marker.getLatLng().lat;
+            userLon = marker.getLatLng().lng;
+            checkDistance(userLat, userLon);
+        }
+    }
+
+    function success(position) {
+        userLat = position.coords.latitude;
+        userLon = position.coords.longitude;
+        checkDistance(userLat, userLon);
+    }
+
+    function geoError() {
+        document.getElementById("message").innerHTML = "❌ Location permission required.";
+        document.getElementById("submitBtn").disabled = true;
+    }
+
+    function checkDistance(lat, lon) {
+        const distance = getDistance(lat, lon, masjidLat, masjidLon);
+        const rounded = distance.toFixed(2);
+
+        if (distance <= maxDistance) {
+            document.getElementById("message").innerHTML = `✅ Verified! You are ${rounded} km from the Masjid.`;
+            document.getElementById("submitBtn").disabled = false;
+        } else {
+            document.getElementById("message").innerHTML = `❌ You are ${rounded} km away. Only within 5km.`;
+            document.getElementById("submitBtn").disabled = true;
+        }
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI/180;
+        const dLon = (lon2 - lon1) * Math.PI/180;
+        const a = Math.sin(dLat/2)**2 +
+                  Math.cos(lat1 * Math.PI/180) *
+                  Math.cos(lat2 * Math.PI/180) *
+                  Math.sin(dLon/2)**2;
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function submitToGoogleForm(e) {
+        e.preventDefault();
+
+        const name = encodeURIComponent(document.getElementById("name").value);
+        const phone = encodeURIComponent(document.getElementById("phone").value);
+        const food = encodeURIComponent(document.getElementById("food").value);
+        const location = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
+
+        // **Replace GOOGLE_FORM_ID with your Form ID from the URL you gave**
+        const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${location}`;
+
+        window.open(googleFormURL, "_blank");
+
+        document.getElementById("message").innerHTML = "✅ Your registration has been sent!";
+        document.getElementById("submitBtn").disabled = true;
+        return false;
+    }
+</script>
+
+</body>
+</html>
+
