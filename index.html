@@ -5,23 +5,98 @@
     <title>Sehri Registration | Masjid-E-Talha</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        :root { --primary-green: #1b5e20; --light-green: #e8f5e9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f4f7f4; color: #333; }
-        .container { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        .header-bar { background: var(--primary-green); color: white; padding: 20px; text-align: center; }
-        .header-bar h2 { margin: 0; font-size: 1.3em; }
-        .form-content { padding: 20px; }
-        label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.9em; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-        .date-chip { padding: 8px 0; background: white; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 0.75em; cursor: pointer; }
-        .date-chip.selected { background: var(--primary-green) !important; color: white; border-color: var(--primary-green); }
-        .month-label { grid-column: span 7; font-weight: bold; color: var(--primary-green); padding: 5px 0; font-size: 0.85em; }
-        #map { height: 280px; margin-top: 15px; border-radius: 10px; display: none; border: 2px solid var(--primary-green); }
-        button { width: 100%; padding: 14px; margin-top: 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1em; }
-        #verifyBtn { background: var(--primary-green); color: white; }
-        #submitBtn { background: #d32f2f; color: white; display: none; }
-        #message { margin-top: 15px; text-align: center; font-weight: bold; color: var(--primary-green); font-size: 0.9em; min-height: 1.2em; }
+        :root { 
+            --emerald-dark: #584fa7; 
+            --emerald-mid: #73cf57; 
+            --emerald-light: #ecfdf5;
+            --gold: #d97706;
+            --slate-300: #7becb4;
+            --slate-900: #0f172a;
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            padding: 15px; max-width: 480px; margin: auto; 
+            background-color: #537252; color: var(--slate-900); 
+        }
+
+        .container { 
+            background: white; border-radius: 24px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            overflow: hidden; border: 1px solid #e2e8f0;
+        }
+
+        .header-bar { 
+            background: var(--emerald-dark); color: white; 
+            padding: 30px 20px; text-align: center;
+            background-image: radial-gradient(circle at top right, var(--emerald-mid), transparent);
+        }
+
+        .header-bar h2 { margin: 0; font-size: 1.5em; letter-spacing: -0.025em; font-weight: 800; }
+        .header-bar p { margin: 8px 0 0; font-size: 0.85em; color: #d1fae5; font-weight: 500; }
+        
+        .form-content { padding: 24px; }
+        
+        label { font-weight: 600; display: block; margin-top: 20px; font-size: 0.85em; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        input, select { 
+            width: 100%; padding: 14px; margin-top: 8px; 
+            border-radius: 12px; border: 1px solid var(--slate-300); 
+            box-sizing: border-box; font-size: 16px; transition: all 0.2s;
+            background-color: #f1f5f9;
+        }
+
+        input:focus, select:focus { 
+            background-color: white; border-color: var(--emerald-mid); 
+            outline: none; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Calendar UI */
+        .calendar-grid { 
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            gap: 6px; margin-top: 12px; padding: 12px; 
+            background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; 
+        }
+        
+        .date-chip { 
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            background: white; border: 1px solid #e2e8f0; border-radius: 10px; 
+            font-size: 0.8em; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+
+        .date-chip.selected { 
+            background: var(--emerald-mid) !important; color: white; 
+            border-color: var(--emerald-mid); transform: scale(0.95);
+        }
+
+        .month-label { grid-column: span 7; font-weight: 700; color: var(--emerald-dark); padding: 8px 0 4px; font-size: 0.9em; }
+
+        #map { height: 280px; margin-top: 15px; border-radius: 16px; display: none; border: 1px solid #e2e8f0; }
+        
+        button { 
+            width: 100%; padding: 16px; margin-top: 24px; border-radius: 12px; 
+            border: none; font-weight: 700; cursor: pointer; font-size: 1em; transition: all 0.2s;
+        }
+
+        #verifyBtn { background: var(--emerald-dark); color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        #submitBtn { 
+            background: var(--gold); color: white; display: none; 
+            animation: slideUp 0.4s ease-out; box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #message { margin-top: 15px; text-align: center; font-weight: 600; color: var(--emerald-dark); font-size: 0.9em; }
+
+        .whatsapp-link {
+            display: inline-block; margin-top: 15px; padding: 12px 20px;
+            background-color: #25D366; color: white; border-radius: 50px;
+            text-decoration: none; font-size: 0.85em; font-weight: 700;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
@@ -29,39 +104,39 @@
 
 <div class="container">
     <div class="header-bar">
-        <h2>Women's Sehri Registration</h2>
-        <p>Masjid-E-Talha (Ramadan 2026)</p>
+        <h2>Sehri Registration</h2>
+        <p>Masjid-E-Talha • Ramadan 2026</p>
     </div>
     <div class="form-content">
         <form id="sehri-form" onsubmit="return submitToGoogleForm(event)">
-            <label>Full Name</label>
-            <input type="text" id="name" required placeholder="Enter Your Name" />
+            <label>Name of Applicant</label>
+            <input type="text" id="name" required placeholder="Full Name" />
 
-            <label>Phone Number</label>
+            <label>Contact Number</label>
             <input type="tel" id="phone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" />
 
-            <label>Food Preference</label>
+            <label>Meal Type</label>
             <select id="food" required>
                 <option value="">Select Preference</option>
                 <option>Veg</option>
                 <option>Non-Veg</option>
             </select>
 
-            <label>Select Dates (Tap to select multiple)</label>
+            <label>Select Dates (Tap multiple)</label>
             <div id="calendar-container" class="calendar-grid"></div>
             <input type="hidden" id="selected-dates-input">
 
             <label>Location Method</label>
             <select id="locMethod" onchange="toggleMap()" required>
                 <option value="">Select Method</option>
-                <option value="current">Use My Current GPS</option>
-                <option value="manual">Pinpoint on Map</option>
+                <option value="current">📍 Use My Current Location</option>
+                <option value="manual">🗺️ Pinpoint on Map</option>
             </select>
 
             <div id="map"></div>
-            <button type="button" id="verifyBtn" style="display:none;" onclick="verifyLocation()">Check Delivery Zone</button>
+            <button type="button" id="verifyBtn" style="display:none;" onclick="verifyLocation()">Verify Delivery Zone</button>
             <p id="message"></p>
-            <button type="submit" id="submitBtn">Register for Sehri</button>
+            <button type="submit" id="submitBtn">Confirm Registration</button>
         </form>
     </div>
 </div>
@@ -72,7 +147,7 @@
     let map, marker, userLat, userLon, userDistance;
     const deliveryAreaCoords = [[12.999975, 77.683896], [12.998177, 77.682909], [12.995253, 77.680975], [12.982679, 77.675032], [12.971381, 77.680411], [12.961265, 77.695249], [12.964454, 77.719452], [12.988412, 77.727259], [12.998004, 77.710501], [12.999488, 77.700572], [12.999763, 77.690981]];
 
-    // --- CALENDAR GENERATION ---
+    // CALENDAR GENERATION
     const calContainer = document.getElementById('calendar-container');
     const start = new Date(2026, 1, 18), end = new Date(2026, 2, 18);
     let lastM = -1;
@@ -95,12 +170,11 @@
         calContainer.appendChild(chip);
     }
 
-    // --- LOGIC ---
     function resetStatus() {
         const submitBtn = document.getElementById("submitBtn");
         submitBtn.style.display = "none";
         submitBtn.disabled = false;
-        submitBtn.innerText = "Register for Sehri";
+        submitBtn.innerText = "Confirm Registration";
         document.getElementById("message").innerHTML = "";
     }
 
@@ -119,7 +193,7 @@
     function initMap() {
         map = L.map('map').setView([masjidLat, masjidLon], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.polygon(deliveryAreaCoords, { color: 'green', fillOpacity: 0.2 }).addTo(map);
+        L.polygon(deliveryAreaCoords, { color: '#059669', fillOpacity: 0.2 }).addTo(map);
         L.marker([masjidLat, masjidLon]).addTo(map).bindPopup("Masjid-E-Talha");
         marker = L.marker([masjidLat, masjidLon], {draggable: true}).addTo(map);
         marker.on('dragend', () => { resetStatus(); validateUserZone(marker.getLatLng().lat, marker.getLatLng().lng); });
@@ -128,14 +202,14 @@
 
     function verifyLocation() {
         resetStatus();
-        document.getElementById("message").innerHTML = "Locating... ⏳";
+        document.getElementById("message").innerHTML = "Accessing GPS... ⏳";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((p) => {
                 validateUserZone(p.coords.latitude, p.coords.longitude);
             }, () => { 
-                document.getElementById("message").innerHTML = "❌ GPS Error. Try 'Map' option."; 
+                document.getElementById("message").innerHTML = "❌ GPS Error. Please try Map selection."; 
             }, {enableHighAccuracy:true, timeout: 10000});
-        } else { document.getElementById("message").innerHTML = "❌ Browser GPS not supported."; }
+        } else { document.getElementById("message").innerHTML = "❌ Not supported."; }
     }
 
     function validateUserZone(lat, lon) {
@@ -149,9 +223,9 @@
             const R = 6371; const dLat = (lat - masjidLat) * Math.PI/180; const dLon = (lon - masjidLon) * Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(masjidLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
             userDistance = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2);
-            document.getElementById("message").innerHTML = "✅ Delivery Available!";
+            document.getElementById("message").innerHTML = "✅ Great! We deliver to your area.";
             document.getElementById("submitBtn").style.display = "block";
-        } else { document.getElementById("message").innerHTML = "❌ Outside Delivery Zone"; }
+        } else { document.getElementById("message").innerHTML = "❌ Location outside delivery zone."; }
     }
 
     function submitToGoogleForm(e) {
@@ -159,36 +233,27 @@
         const dates = document.getElementById('selected-dates-input').value;
         if (!dates) { alert("Please select dates."); return; }
         const submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true; submitBtn.innerText = "Registering...";
+        submitBtn.disabled = true; submitBtn.innerText = "Processing...";
         const name = encodeURIComponent(document.getElementById("name").value);
         const phone = encodeURIComponent(document.getElementById("phone").value);
         const food = encodeURIComponent(document.getElementById("food").value);
-        
-        // Corrected Template Literal for Map Link
         const mapLink = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
         
+        // Final Google Form URL (ensure your entry IDs are correct)
         const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${mapLink}&entry.144961159=${userDistance}&entry.987966431=${encodeURIComponent(dates)}`;
 
         fetch(googleFormURL, { method: "POST", mode: "no-cors" }).then(() => {
-            document.getElementById("message").innerHTML = "✅ Registered Successfully!";
-            
-            // CLEAR DATA AFTER SUCCESS
+            document.getElementById("message").innerHTML = "✅ Registration Successful!";
             document.getElementById("sehri-form").reset();
             document.querySelectorAll('.date-chip').forEach(chip => chip.classList.remove('selected'));
             document.getElementById('selected-dates-input').value = "";
-            
-            // Update UI
-            submitBtn.innerText = "Registered!";
+            submitBtn.innerText = "Success ✅";
             submitBtn.style.display = "none";
-            
-            const waMsg = encodeURIComponent("I registered for Sehri delivery! at Talha Masjid. Sisters can register here: " + window.location.href);
-            document.getElementById("message").innerHTML += `<br><br><a href="https://wa.me/?text=${waMsg}" style="color:#25D366;text-decoration:none;font-weight:bold;">Share on WhatsApp</a>`;
-            
-            // Close map if open
+            const waMsg = encodeURIComponent("I registered for Sehri delivery at Talha Masjid! Sisters can register here: " + window.location.href);
+            document.getElementById("message").innerHTML += `<br><br><a href="https://wa.me/?text=${waMsg}" class="whatsapp-link">Share on WhatsApp</a>`;
             document.getElementById("map").style.display = "none";
             document.getElementById("verifyBtn").style.display = "none";
-            
-        }).catch(() => { alert("Error. Please check internet."); submitBtn.disabled = false; submitBtn.innerText = "Register for Sehri"; });
+        }).catch(() => { alert("Submission error."); submitBtn.disabled = false; submitBtn.innerText = "Confirm Registration"; });
     }
 </script>
 </body>
