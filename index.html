@@ -5,62 +5,23 @@
     <title>Sehri Registration | Masjid-E-Talha</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        :root {
-            --primary-green: #1b5e20;
-            --light-green: #e8f5e9;
-            --accent-gold: #c5a059;
-        }
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            padding: 20px; 
-            max-width: 500px; 
-            margin: auto; 
-            background-color: #f0f2f0; 
-            color: #333;
-        }
-        .container { 
-            background: white; 
-            padding: 0; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            overflow: hidden;
-        }
-        .header-bar {
-            background: var(--primary-green);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .header-bar h2 { margin: 0; font-size: 1.4em; }
-        .header-bar p { margin: 5px 0 0; font-size: 0.85em; opacity: 0.9; }
-        
-        .form-content { padding: 25px; }
-        
-        label { font-weight: 600; display: block; margin-top: 15px; font-size: 0.9em; color: #444; }
-        input, select { 
-            width: 100%; padding: 12px; margin-top: 5px; 
-            border-radius: 8px; border: 1px solid #ccc; 
-            box-sizing: border-box; font-size: 16px;
-        }
-        input:focus { border-color: var(--primary-green); outline: none; }
-        
-        button { 
-            width: 100%; padding: 14px; margin-top: 20px; 
-            border-radius: 8px; border: none; 
-            font-weight: bold; cursor: pointer; transition: 0.3s; 
-            font-size: 1em;
-        }
+        :root { --primary-green: #1b5e20; --light-green: #e8f5e9; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f4f7f4; color: #333; }
+        .container { background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header-bar { background: var(--primary-green); color: white; padding: 20px; text-align: center; }
+        .header-bar h2 { margin: 0; font-size: 1.3em; }
+        .form-content { padding: 20px; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.9em; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        .date-chip { padding: 8px 0; background: white; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 0.75em; cursor: pointer; }
+        .date-chip.selected { background: var(--primary-green) !important; color: white; border-color: var(--primary-green); }
+        .month-label { grid-column: span 7; font-weight: bold; color: var(--primary-green); padding: 5px 0; font-size: 0.85em; }
+        #map { height: 280px; margin-top: 15px; border-radius: 10px; display: none; border: 2px solid var(--primary-green); }
+        button { width: 100%; padding: 14px; margin-top: 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1em; }
         #verifyBtn { background: var(--primary-green); color: white; }
         #submitBtn { background: #d32f2f; color: white; display: none; }
-        button:disabled { background: #ccc !important; cursor: not-allowed; }
-        
-        #message { 
-            margin-top: 20px; text-align: center; 
-            font-weight: bold; min-height: 24px; 
-            line-height: 1.5;
-        }
-        #map { height: 300px; margin-top: 15px; border-radius: 10px; display: none; border: 2px solid var(--primary-green); }
-        .footer-note { font-size: 0.75em; color: #777; text-align: center; margin-top: 20px; line-height: 1.4; }
+        #message { margin-top: 15px; text-align: center; font-weight: bold; color: var(--primary-green); font-size: 0.9em; min-height: 1.2em; }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
@@ -69,9 +30,8 @@
 <div class="container">
     <div class="header-bar">
         <h2>Women's Sehri Registration</h2>
-        <p>Masjid-E-Talha Ramadan Outreach 2026</p>
+        <p>Masjid-E-Talha (Ramadan 2026)</p>
     </div>
-
     <div class="form-content">
         <form id="sehri-form" onsubmit="return submitToGoogleForm(event)">
             <label>Full Name</label>
@@ -82,166 +42,153 @@
 
             <label>Food Preference</label>
             <select id="food" required>
-                <option value="">Choose preference...</option>
+                <option value="">Select Preference</option>
                 <option>Veg</option>
                 <option>Non-Veg</option>
             </select>
 
+            <label>Select Dates (Tap to select multiple)</label>
+            <div id="calendar-container" class="calendar-grid"></div>
+            <input type="hidden" id="selected-dates-input">
+
             <label>Location Method</label>
             <select id="locMethod" onchange="toggleMap()" required>
-                <option value="">Select how to find your house...</option>
-                <option value="current">Use My Current GPS Location</option>
-                <option value="manual">Pinpoint House on Map</option>
+                <option value="">Select Method</option>
+                <option value="current">Use My Current GPS</option>
+                <option value="manual">Pinpoint on Map</option>
             </select>
 
             <div id="map"></div>
-            <p id="map-tip" style="display:none; font-size:0.75em; color:#666; margin-top:5px; text-align:center;">
-                📍 Drag the pin or tap your house on the map.
-            </p>
-
-            <button type="button" id="verifyBtn" style="display:none;" onclick="verifyLocation()">Check Delivery Availability</button>
+            <button type="button" id="verifyBtn" style="display:none;" onclick="verifyLocation()">Check Delivery Zone</button>
             <p id="message"></p>
             <button type="submit" id="submitBtn">Register for Sehri</button>
         </form>
-
-        <div class="footer-note">
-            Please register before 10 PM for the following day's delivery.<br>
-            Delivery limited to the approved green zone.
-        </div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    const masjidLat = 12.9938519;
-    const masjidLon = 77.6988981;
+    const masjidLat = 12.9938519, masjidLon = 77.6988981;
     let map, marker, userLat, userLon, userDistance;
+    const deliveryAreaCoords = [[12.999975, 77.683896], [12.998177, 77.682909], [12.995253, 77.680975], [12.982679, 77.675032], [12.971381, 77.680411], [12.961265, 77.695249], [12.964454, 77.719452], [12.988412, 77.727259], [12.998004, 77.710501], [12.999488, 77.700572], [12.999763, 77.690981]];
 
-    const deliveryAreaCoords = [
-        [12.999975, 77.683896], [12.998177, 77.682909], [12.995253, 77.680975],
-        [12.982679, 77.675032], [12.971381, 77.680411], [12.961265, 77.695249],
-        [12.964454, 77.719452], [12.988412, 77.727259], [12.998004, 77.710501],
-        [12.999488, 77.700572], [12.999763, 77.690981]
-    ];
+    // --- CALENDAR GENERATION ---
+    const calContainer = document.getElementById('calendar-container');
+    const start = new Date(2026, 1, 18), end = new Date(2026, 2, 18);
+    let lastM = -1;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (d.getMonth() !== lastM) {
+            const lbl = document.createElement('div'); lbl.className = 'month-label';
+            lbl.innerText = d.toLocaleString('default', { month: 'long' });
+            calContainer.appendChild(lbl); lastM = d.getMonth();
+        }
+        const chip = document.createElement('div'); chip.className = 'date-chip'; chip.innerText = d.getDate();
+        chip.onclick = function() {
+            this.classList.toggle('selected');
+            const allSelected = Array.from(document.querySelectorAll('.date-chip.selected')).map(c => {
+                let sibling = c.previousElementSibling;
+                while(sibling && !sibling.classList.contains('month-label')) { sibling = sibling.previousElementSibling; }
+                return c.innerText + " " + (sibling ? sibling.innerText : "");
+            });
+            document.getElementById('selected-dates-input').value = allSelected.join(', ');
+        };
+        calContainer.appendChild(chip);
+    }
 
-    let deliveryZone;
+    // --- LOGIC ---
+    function resetStatus() {
+        const submitBtn = document.getElementById("submitBtn");
+        submitBtn.style.display = "none";
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Register for Sehri";
+        document.getElementById("message").innerHTML = "";
+    }
 
     function toggleMap() {
+        resetStatus();
         const method = document.getElementById("locMethod").value;
-        const mapDiv = document.getElementById("map");
-        const mapTip = document.getElementById("map-tip");
-        const verifyBtn = document.getElementById("verifyBtn");
-        const submitBtn = document.getElementById("submitBtn");
-        
-        document.getElementById("message").innerHTML = "";
-        submitBtn.style.display = "none";
-
+        const mapDiv = document.getElementById("map"), vBtn = document.getElementById("verifyBtn");
         if (method === "manual") {
-            mapDiv.style.display = "block";
-            mapTip.style.display = "block";
-            verifyBtn.style.display = "none";
-            if (!map) initMap();
-            else setTimeout(() => map.invalidateSize(), 200);
+            mapDiv.style.display = "block"; vBtn.style.display = "none";
+            if (!map) initMap(); else setTimeout(() => map.invalidateSize(), 200);
         } else if (method === "current") {
-            mapDiv.style.display = "none";
-            mapTip.style.display = "none";
-            verifyBtn.style.display = "block";
-        } else {
-            mapDiv.style.display = "none";
-            mapTip.style.display = "none";
-            verifyBtn.style.display = "none";
-        }
+            mapDiv.style.display = "none"; vBtn.style.display = "block";
+        } else { mapDiv.style.display = "none"; vBtn.style.display = "none"; }
     }
 
     function initMap() {
         map = L.map('map').setView([masjidLat, masjidLon], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        deliveryZone = L.polygon(deliveryAreaCoords, { color: 'green', fillColor: '#2ecc71', fillOpacity: 0.3 }).addTo(map);
+        L.polygon(deliveryAreaCoords, { color: 'green', fillOpacity: 0.2 }).addTo(map);
         L.marker([masjidLat, masjidLon]).addTo(map).bindPopup("Masjid-E-Talha");
         marker = L.marker([masjidLat, masjidLon], {draggable: true}).addTo(map);
-        
-        marker.on('dragend', () => validateUserZone(marker.getLatLng().lat, marker.getLatLng().lng));
-        map.on('click', (e) => {
-            marker.setLatLng(e.latlng);
-            validateUserZone(e.latlng.lat, e.latlng.lng);
-        });
+        marker.on('dragend', () => { resetStatus(); validateUserZone(marker.getLatLng().lat, marker.getLatLng().lng); });
+        map.on('click', (e) => { marker.setLatLng(e.latlng); resetStatus(); validateUserZone(e.latlng.lat, e.latlng.lng); });
     }
 
     function verifyLocation() {
-        const msg = document.getElementById("message");
-        msg.innerHTML = "Finding your location... ⏳";
+        resetStatus();
+        document.getElementById("message").innerHTML = "Locating... ⏳";
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((p) => {
                 validateUserZone(p.coords.latitude, p.coords.longitude);
-            }, () => {
-                msg.innerHTML = "❌ GPS Error. Please enable location or use 'Map'.";
-            }, { enableHighAccuracy: true, timeout: 8000 });
-        }
+            }, () => { 
+                document.getElementById("message").innerHTML = "❌ GPS Error. Try 'Map' option."; 
+            }, {enableHighAccuracy:true, timeout: 10000});
+        } else { document.getElementById("message").innerHTML = "❌ Browser GPS not supported."; }
     }
 
     function validateUserZone(lat, lon) {
         let isInside = false;
         for (let i = 0, j = deliveryAreaCoords.length - 1; i < deliveryAreaCoords.length; j = i++) {
-            const xi = deliveryAreaCoords[i][0], yi = deliveryAreaCoords[i][1];
-            const xj = deliveryAreaCoords[j][0], yj = deliveryAreaCoords[j][1];
+            const xi = deliveryAreaCoords[i][0], yi = deliveryAreaCoords[i][1], xj = deliveryAreaCoords[j][0], yj = deliveryAreaCoords[j][1];
             if (((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi)) isInside = !isInside;
         }
-
-        const submitBtn = document.getElementById("submitBtn");
-        const msg = document.getElementById("message");
-
         if (isInside) {
             userLat = lat; userLon = lon;
-            const R = 6371;
-            const dLat = (lat - masjidLat) * Math.PI/180;
-            const dLon = (lon - masjidLon) * Math.PI/180;
+            const R = 6371; const dLat = (lat - masjidLat) * Math.PI/180; const dLon = (lon - masjidLon) * Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(masjidLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLon/2)**2;
             userDistance = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(2);
-            
-            msg.innerHTML = "✅ You are in the delivery zone!";
-            submitBtn.style.display = "block";
-            submitBtn.innerText = "Register for Sehri";
-            submitBtn.disabled = false;
-        } else {
-            msg.innerHTML = "❌ Sorry, we don't deliver to this location.";
-            submitBtn.style.display = "none";
-        }
+            document.getElementById("message").innerHTML = "✅ Delivery Available!";
+            document.getElementById("submitBtn").style.display = "block";
+        } else { document.getElementById("message").innerHTML = "❌ Outside Delivery Zone"; }
     }
 
     function submitToGoogleForm(e) {
         e.preventDefault();
+        const dates = document.getElementById('selected-dates-input').value;
+        if (!dates) { alert("Please select dates."); return; }
         const submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Saving Registration...";
-
+        submitBtn.disabled = true; submitBtn.innerText = "Registering...";
         const name = encodeURIComponent(document.getElementById("name").value);
         const phone = encodeURIComponent(document.getElementById("phone").value);
         const food = encodeURIComponent(document.getElementById("food").value);
+        
+        // Corrected Template Literal for Map Link
         const mapLink = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
         
-        const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${mapLink}&entry.144961159=${userDistance}`;
+        const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${mapLink}&entry.144961159=${userDistance}&entry.987966431=${encodeURIComponent(dates)}`;
 
-        fetch(googleFormURL, { method: "POST", mode: "no-cors" })
-        .then(() => {
-            const msg = document.getElementById("message");
-            msg.innerHTML = "✅ Registration Successful!";
+        fetch(googleFormURL, { method: "POST", mode: "no-cors" }).then(() => {
+            document.getElementById("message").innerHTML = "✅ Registered Successfully!";
+            
+            // CLEAR DATA AFTER SUCCESS
+            document.getElementById("sehri-form").reset();
+            document.querySelectorAll('.date-chip').forEach(chip => chip.classList.remove('selected'));
+            document.getElementById('selected-dates-input').value = "";
+            
+            // Update UI
             submitBtn.innerText = "Registered!";
+            submitBtn.style.display = "none";
             
-            // Add WhatsApp Share Link
-            const shareText = encodeURIComponent("Assalamu Alaikum! Register for Sehri delivery from Masjid-E-Talha here: " + window.location.href);
-            msg.innerHTML += `<br><br><a href="https://wa.me/?text=${shareText}" style="color:#25D366; text-decoration:none;">📲 Share this form on WhatsApp</a>`;
+            const waMsg = encodeURIComponent("I registered for Sehri delivery! at Talha Masjid. Sisters can register here: " + window.location.href);
+            document.getElementById("message").innerHTML += `<br><br><a href="https://wa.me/?text=${waMsg}" style="color:#25D366;text-decoration:none;font-weight:bold;">Share on WhatsApp</a>`;
             
-            setTimeout(() => {
-                document.getElementById("sehri-form").reset();
-                toggleMap();
-            }, 5000);
-        })
-        .catch(() => {
-            alert("Error saving. Check internet connection.");
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Register for Sehri";
-        });
-        return false;
+            // Close map if open
+            document.getElementById("map").style.display = "none";
+            document.getElementById("verifyBtn").style.display = "none";
+            
+        }).catch(() => { alert("Error. Please check internet."); submitBtn.disabled = false; submitBtn.innerText = "Register for Sehri"; });
     }
 </script>
 </body>
