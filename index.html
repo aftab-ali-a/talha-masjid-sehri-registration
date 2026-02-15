@@ -236,7 +236,11 @@
             document.getElementById("message").innerHTML = "✅ Delivery Location confirmed!";
             document.getElementById("submitBtn").style.display = "block";
         } else { 
-                    document.getElementById("message").innerHTML = "❌ Selected location is outside delivery zone. ❌ Delivery service is not available for the selected location."; 
+                    document.getElementById("message").innerHTML = `
+                        <div class="outside-warning">
+                            <b>📍 Selected location is outside delivery zone.</b><br>
+                            ❌ Delivery service is not available for the selected location.
+                        </div>`; 
                 }
     }
 
@@ -249,15 +253,23 @@
         const name = encodeURIComponent(document.getElementById("name").value);
         const phone = encodeURIComponent(document.getElementById("phone").value);
         const food = encodeURIComponent(document.getElementById("food").value);
-        const mapLink = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
+        const mapLink = encodeURIComponent(`http://www.google.com/maps/place/${userLat},${userLon}`);
         
         const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${mapLink}&entry.144961159=${userDistance}&entry.987966431=${encodeURIComponent(dates)}`;
 
         fetch(googleFormURL, { method: "POST", mode: "no-cors" }).then(() => {
-            document.getElementById("message").innerHTML = "✅ Registered Successfully!";
+            // document.getElementById("message").innerHTML = "✅ Registered Successfully!";
+            document.getElementById("message").innerHTML = `
+                        <div class="success-box">
+                            <b>✅ Registered Successfully!</b><br>
+                            Our Team will reach out to you shortly.
+                        </div>`; 
             document.getElementById("sehri-form").reset();
             document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+            document.getElementById('selected-dates-input').value = "";
+            document.getElementById("locMethod").value = "";
             submitBtn.style.display = "none";
+            setTimeout(() => { location.reload(); }, 8000);
             // const waMsg = encodeURIComponent("I registered for Sehri delivery at Talha Masjid! Register here: " + window.location.href);
             // document.getElementById("message").innerHTML += `<br><br><a href="https://wa.me/?text=${waMsg}" class="whatsapp-link">Share on WhatsApp</a>`;
         }).catch(() => { alert("Submission error."); submitBtn.disabled = false; });
