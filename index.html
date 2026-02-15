@@ -1,226 +1,151 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ramadan Sehri Registration</title>
+    <title>Sehri Registration | Masjid-E-Talha</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial; padding: 20px; max-width: 500px; margin: auto; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 10px; }
-        button { background: green; color: white; border: none; }
-        button:disabled { background: grey; }
-        #message { margin-top: 15px; font-weight: bold; }
-        #map { height: 300px; margin-top: 10px; display: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f4f7f4; }
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #1b5e20; text-align: center; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9em; }
+        label { font-weight: bold; display: block; margin-top: 15px; color: #333; }
+        input, select, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #2e7d32; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        button:hover { background: #1b5e20; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #message { margin-top: 15px; font-weight: bold; text-align: center; padding: 10px; border-radius: 5px; }
+        #map { height: 300px; margin-top: 15px; border-radius: 10px; display: none; border: 2px solid #2e7d32; }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 
-<h3>Women's Sehri Registration At Masjid-E-Talha</h3>
+<div class="container">
+    <h2>Women's Sehri Registration</h2>
+    <p class="subtitle">Masjid-E-Talha Community Service</p>
 
-<form id="sehri-form" onsubmit="return submitToGoogleForm(event)">
+    <form id="sehri-form" onsubmit="return submitToGoogleForm(event)">
+        <label>Full Name</label>
+        <input type="text" id="name" required placeholder="Enter Your Name" />
 
-    <label>Name</label>
-    <input 
-        type="text"
-        id="name"
-        required
-        placeholder="Enter Your Name" 
-    />
+        <label>Phone Number</label>
+        <input type="tel" id="phone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number" />
 
-    <label>Phone Number</label>
-    <input 
-        type="tel" 
-        id="phone" 
-        required
-        pattern="[0-9]{10}"
-        maxlength="10"
-        minlength="10"
-        placeholder="Enter 10-digit phone number"
-    />
+        <label>Food Preference</label>
+        <select id="food" required>
+            <option value="">Choose preference...</option>
+            <option>Veg</option>
+            <option>Non-Veg</option>
+        </select>
 
-    <label>Food Preference</label>
-    <select id="food" required>
-        <option value="">Select Your Food Preference</option>
-        <option>Veg</option>
-        <option>Non-Veg</option>
-    </select>
+        <label>Location Method</label>
+        <select id="locMethod" onchange="toggleMap()" required>
+            <option value="">Select how to provide location...</option>
+            <option value="current">Use My Current GPS Location</option>
+            <option value="manual">Pinpoint My House on Map</option>
+        </select>
 
-    <label>Location</label>
-    <select id="locMethod" onchange="toggleMap()" required>
-        <option value="">Select Location</option>
-        <option value="current">Use Current Location (GPS)</option>
-        <option value="manual">Select Location on Map</option>
-    </select>
+        <div id="map"></div>
 
-    <button type="button" onclick="verifyLocation()">Check if Sehri Delivery Is Available in Your Area</button>
-    <button type="submit" id="submitBtn" disabled>Submit</button>
+        <button type="button" id="verifyBtn" onclick="verifyLocation()">Check Delivery Availability</button>
+        <button type="submit" id="submitBtn" disabled>Register for Sehri</button>
+    </form>
 
-</form>
-
-<p id="message"></p>
-<div id="map"></div>
+    <p id="message"></p>
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    // Your mosque location
     const masjidLat = 12.9938519;
     const masjidLon = 77.6988981;
-    const maxDistance = 5; // km
     let map, marker, userLat, userLon, userDistance;
+
+    const deliveryAreaCoords = [
+        [12.999975, 77.683896], [12.998177, 77.682909], [12.995253, 77.680975],
+        [12.982679, 77.675032], [12.971381, 77.680411], [12.961265, 77.695249],
+        [12.964454, 77.719452], [12.988412, 77.727259], [12.998004, 77.710501],
+        [12.999488, 77.700572], [12.999763, 77.690981]
+    ];
+
+    let deliveryZone;
 
     function toggleMap() {
         const method = document.getElementById("locMethod").value;
         const mapDiv = document.getElementById("map");
-        document.getElementById("message").innerHTML = "";
-        document.getElementById("submitBtn").disabled = true;
-
         if (method === "manual") {
             mapDiv.style.display = "block";
             if (!map) initMap();
+            setTimeout(() => map.invalidateSize(), 200);
         } else {
             mapDiv.style.display = "none";
         }
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("message").innerHTML = "";
     }
 
     function initMap() {
-        map = L.map('map').setView([masjidLat, masjidLon], 13);
+        map = L.map('map').setView([masjidLat, masjidLon], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © OpenStreetMap contributors'
-        }).addTo(map);
+        deliveryZone = L.polygon(deliveryAreaCoords, { color: 'green', fillColor: '#2ecc71', fillOpacity: 0.3 }).addTo(map);
+        L.marker([masjidLat, masjidLon]).addTo(map).bindPopup("Masjid-E-Talha");
 
-        marker = L.marker([masjidLat, masjidLon], {draggable:true}).addTo(map);
-
-        marker.on('dragend', function(e) {
-            const pos = marker.getLatLng();
-            userLat = pos.lat;
-            userLon = pos.lng;
+        marker = L.marker([masjidLat, masjidLon], {draggable: true}).addTo(map);
+        
+        marker.on('dragend', () => validateUserZone(marker.getLatLng().lat, marker.getLatLng().lng));
+        map.on('click', (e) => {
+            marker.setLatLng(e.latlng);
+            validateUserZone(e.latlng.lat, e.latlng.lng);
         });
-
-        map.on('click', function(e) {
-            const pos = e.latlng;
-            marker.setLatLng(pos);
-            userLat = pos.lat;
-            userLon = pos.lng;
-        });
-
-        userLat = masjidLat;
-        userLon = masjidLon;
     }
 
     function verifyLocation() {
         const method = document.getElementById("locMethod").value;
-        if (!method) {
-            alert("Please select location method.");
-            return;
-        }
-
         if (method === "current") {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(success, geoError);
-            } else {
-                alert("Geolocation not supported.");
+                navigator.geolocation.getCurrentPosition((p) => validateUserZone(p.coords.latitude, p.coords.longitude), () => alert("Location denied"));
             }
         } else if (method === "manual") {
-            userLat = marker.getLatLng().lat;
-            userLon = marker.getLatLng().lng;
-            checkDistance(userLat, userLon);
+            validateUserZone(marker.getLatLng().lat, marker.getLatLng().lng);
         }
     }
 
-    function success(position) {
-        userLat = position.coords.latitude;
-        userLon = position.coords.longitude;
-        checkDistance(userLat, userLon);
-    }
+    function validateUserZone(lat, lon) {
+        let isInside = false;
+        for (let i = 0, j = deliveryAreaCoords.length - 1; i < deliveryAreaCoords.length; j = i++) {
+            const xi = deliveryAreaCoords[i][0], yi = deliveryAreaCoords[i][1];
+            const xj = deliveryAreaCoords[j][0], yj = deliveryAreaCoords[j][1];
+            if (((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi)) isInside = !isInside;
+        }
 
-    function geoError() {
-        document.getElementById("message").innerHTML = "❌ Location permission required.";
-        document.getElementById("submitBtn").disabled = true;
-    }
-
-    function checkDistance(lat, lon) {
-        const distance = getDistance(lat, lon, masjidLat, masjidLon);
-        const rounded = distance.toFixed(2);
-        userDistance = rounded;
-
-        if (distance <= maxDistance) {
-            document.getElementById("message").innerHTML = `✅ Delivery is available! Please Submit Your request`;
+        if (isInside) {
+            userLat = lat; userLon = lon;
+            userDistance = (map.distance([lat, lon], [masjidLat, masjidLon]) / 1000).toFixed(2);
+            document.getElementById("message").innerHTML = "✅ Delivery Available! Please Register for Sehri";
             document.getElementById("submitBtn").disabled = false;
         } else {
-            document.getElementById("message").innerHTML = `❌ Sorry! Sehri service is only available within ${maxDistance} km. You are currently ${rounded} km away.`;
+            document.getElementById("message").innerHTML = "❌ Outside Delivery Zone";
             document.getElementById("submitBtn").disabled = true;
         }
     }
 
-    function getDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI/180;
-        const dLon = (lon2 - lon1) * Math.PI/180;
-        const a = Math.sin(dLat/2)**2 +
-                  Math.cos(lat1 * Math.PI/180) *
-                  Math.cos(lat2 * Math.PI/180) *
-                  Math.sin(dLon/2)**2;
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
+    function submitToGoogleForm(e) {
+        e.preventDefault();
+        const name = encodeURIComponent(document.getElementById("name").value);
+        const phone = encodeURIComponent(document.getElementById("phone").value);
+        const food = encodeURIComponent(document.getElementById("food").value);
+        const mapLink = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
+        
+        const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${mapLink}&entry.144961159=${userDistance}`;
 
-function submitToGoogleForm(e) {
-    e.preventDefault();
-
-    // Name
-    const name = encodeURIComponent(document.getElementById("name").value);
-
-    // Phone validation
-    const phoneInput = document.getElementById("phone").value.trim();
-    const phoneClean = phoneInput.replace(/\D/g, "");
-    if (phoneClean.length !== 10) {
-        document.getElementById("message").innerHTML = "❌ Please enter a valid 10-digit phone number.";
+        fetch(googleFormURL, { method: "POST", mode: "no-cors" })
+        .then(() => {
+            document.getElementById("message").innerHTML = "✅ Registration Successful!";
+            document.getElementById("sehri-form").reset();
+        })
+        .catch(() => alert("Error submitting. Try again."));
         return false;
     }
-    const phone = encodeURIComponent(phoneClean);
-
-    // Food preference
-    const foodInput = document.getElementById("food").value;
-    if (!foodInput) {
-        document.getElementById("message").innerHTML = "❌ Please select your food preference.";
-        return false;
-    }
-    const food = encodeURIComponent(foodInput);
-
-    // Optional: Add dates if you have start/end date fields
-    const startDate = document.getElementById("startDate")?.value || "";
-    const endDate = document.getElementById("endDate")?.value || "";
-    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-        document.getElementById("message").innerHTML = "❌ End date cannot be before start date.";
-        return false;
-    }
-
-    const location = encodeURIComponent(`https://www.google.com/maps?q=${userLat},${userLon}`);
-    const distance = encodeURIComponent(userDistance);
-
-    // Replace GOOGLE_FORM_ID with your actual form's ID & entry IDs
-    const googleFormURL = `https://docs.google.com/forms/d/e/1FAIpQLScM6yV_w_vCsJLspCpWdVEoEG2nY07Pr8t_mMJKVifY9mmMHg/formResponse?entry.924820124=${name}&entry.471336051=${phone}&entry.824975180=${food}&entry.1390853445=${location}&entry.144961159=${distance}`;
-
-    // Submit silently using fetch
-    fetch(googleFormURL, {
-        method: "POST",
-        mode: "no-cors" // prevents redirect to Google Form response page
-    })
-    .then(() => {
-        document.getElementById("message").innerHTML = "✅";
-        document.getElementById("message").innerHTML = "✅ Your registration has been sent! Please click X to close this Window";
-        document.getElementById("submitBtn").disabled = true;
-    })
-    .catch(() => {
-        document.getElementById("message").innerHTML = "❌ Something went wrong. Please try again!";
-    });
-
-    return false; // prevent default form submission
-}
-
 </script>
-
 </body>
 </html>
-
